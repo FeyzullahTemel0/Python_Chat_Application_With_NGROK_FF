@@ -1,7 +1,8 @@
 # Python_Chat_Application_With_NGROK_FF
 
 
-#pip install flask and pip install flask_socketio
+#pip install flask
+#pip install flask_socketio
 _________________________________________________
 
 Öncelikle python kodu çalıştırılmalı secret key ayarlanmalıdır ve ngrok işlemlerine daha sonra geçilmelidir.
