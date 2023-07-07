@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Uygulaması</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: rgb(2, 75, 94);
+            font-family: Arial, sans-serif;
+        }
+
+        .chat-container {
+            width: 400px;
+            height: 600px;
+            background-color: #cacaca;
+            border: 1px solid #020202;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .username, .message {
+            padding-top: 5px;
+            border-radius: 10px;
+            border: 2px solid #020202;
+            width: 100%;
+            padding: 5px;
+            margin-bottom: 10px;
+            background-color: #cacaca;
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        #messages {
+            height: 350px;
+            overflow-y: scroll;
+            border: 1px solid #000000;
+            padding: 10px;
+            border-radius: 15px;
+            margin-bottom: 10px;
+            word-wrap: break-word; /* Yeni eklenen satır */
+            white-space: pre-wrap; /* Yeni eklenen satır */
+        }
+
+        #chat-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #chat-form input[type="text"] {
+            flex: 1;
+            margin-right: 10px;
+            padding: 5px;
+            border: 1px solid #000000;
+            border-radius: 15px;
+        }
+
+        #chat-form button {
+            background-color: #006eff;
+            color: #cacaca;
+            cursor: pointer;
+            border-radius: 15px;
+            width: 100%;
+            padding: 5px;
+            border-radius: 10px;
+            border: 1px solid #020202;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="chat-container">
+        <h1>ZODIAC CHAT APPLICATION</h1>
+        <div id="messages"></div>
+        <form id="chat-form">
+            <input type="text" id="username-input" class="username" placeholder="Kullanıcı Adı" autocomplete="off" required>
+            <textarea id="message-input" class="message" placeholder="Mesajınızı girin" autocomplete="off"></textarea>
+            <button type="submit">Gönder</button>
+        </form>
+    </div>
+    <p>Bu uygulama kodları Feyzullah Temel tarafından yazılmıştır.</p>
+
+    <script>
+
+        var socket = io.connect();
+        var username = '';
+
+
+        socket.on('message', function(data) {
+            var message = data.message;
+            var sender = data.sender;
+            var formattedMessage = '<strong>' + sender + ':</strong> ' + message;
+            var messageElement = document.createElement('p');
+            messageElement.innerHTML = formattedMessage;
+            messageElement.classList.add('message-text');
+            document.getElementById('messages').appendChild(messageElement);
+            scrollToBottom();
+        });
+
+        $('#chat-form').submit(function(e) {
+            e.preventDefault();
+            if (!username) {
+                username = $('#username-input').val();
+                $('#username-input').val('');
+                $('#username-input').attr('disabled', 'disabled');
+                $('#message-input').focus();
+            } else {
+                var message = $('#message-input').val();
+                socket.emit('message', { message: message, sender: username });
+                $('#message-input').val('');
+            }
+        });
+
+
+        $('#message-input').keydown(function(e) {
+            if (e.shiftKey && e.keyCode === 13) {
+                var content = this.value;
+                var caret = getCaretPosition(this);
+                this.value = content.substring(0, caret) + "\n" + content.substring(caret, content.length);
+                e.stopPropagation();
+            }
+        });
+
+
+        function getCaretPosition(element) {
+            var caretPos = 0;
+            if (document.selection) {
+                element.focus();
+                var sel = document.selection.createRange();
+                sel.moveStart('character', -element.value.length);
+                caretPos = sel.text.length;
+            } else if (element.selectionStart || element.selectionStart === '0') {
+                caretPos = element.selectionStart;
+            }
+            return caretPos;
+        }
+
+        function scrollToBottom() {
+            var messagesDiv = document.getElementById("messages");
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            messagesDiv.scrollIntoView({ behavior: 'smooth', block: 'end' }); 
+        }
+    </script>
+</body>
+</html>
